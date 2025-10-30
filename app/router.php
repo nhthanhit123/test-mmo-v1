@@ -9,7 +9,12 @@
 */
 
 $routes = [
-    '/' => 'public/client/index.php'
+    '/' => 'public/client/index.php',
+    '/auth/login' => 'public/client/auth/login.php',
+    '/auth/register' => 'public/client/auth/register.php',
+    '/auth/forgot' => 'public/client/auth/forgot.php',
+    '/auth/reset' => 'public/client/auth/reset.php',
+    '/deposit' => 'public/client/deposit.php'
 ];
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

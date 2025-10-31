@@ -74,9 +74,14 @@ function sendTelegram($message){
 }
 
 function AntiXss($input){
+    if(is_array($input)){
+        return array_map('AntiXss', $input);
+    }
     $input = trim($input);
     $input = stripslashes($input);
-    $input = htmlspecialchars($input);
+    $input = htmlspecialchars($input, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    // Remove potentially dangerous characters
+    $input = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $input);
     return $input;
 }
 
@@ -84,6 +89,8 @@ function x($input){
     global $nify;
     $input = AntiXss($input);
     $input = mysqli_real_escape_string($nify, $input);
+    // Additional SQL injection prevention
+    $input = preg_replace('/(union|select|insert|update|delete|drop|create|alter|exec|script|javascript|vbscript|onload|onerror|onclick)/i', '', $input);
     return $input;
 }
 
@@ -93,12 +100,13 @@ function redirect($url){
 
 function isLogin(){
     if(isset($_COOKIE['remember_token'])){
-        $token = md5($_COOKIE['remember_token']);
+        $token = AntiXss($_COOKIE['remember_token']);
         global $nify;
         $check = $nify->query("SELECT `id` FROM `users` WHERE `remember_token` = '$token' AND `status` = 'active'");
         if($check->num_rows > 0){
             return true;
         } else {
+            // Clear invalid token
             setcookie('remember_token', '', time() - 3600, '/', '', false, true);
             return false;
         }
@@ -239,7 +247,7 @@ function TruTienDichVu($time, $amount, $hsd){
 
 # Get User
 if(isLogin()){
-    $token = md5($_COOKIE['remember_token']);
+    $token = AntiXss($_COOKIE['remember_token']);
     $getUser = mysqli_query($nify, "SELECT * FROM `users` WHERE `remember_token` = '$token' AND `status` = 'active'")->fetch_assoc();
     if(!$getUser || $getUser['remember_token'] !== $token){
         setcookie('remember_token', '', time() - 3600, '/', '', false, true);
@@ -256,46 +264,8 @@ function generateSecureToken($length = 32){
     return bin2hex(random_bytes($length));
 }
 
-function sanitizeFilename($filename){
-    $filename = AntiXss($filename);
-    $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
-    return $filename;
-}
-
-function validateEmail($email){
-    return filter_var($email, FILTER_VALIDATE_EMAIL) && preg_match('/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $email);
-}
-
-function validatePhone($phone){
-    return preg_match('/^[0-9]{10,11}$/', $phone);
-}
-
-function logSecurity($event, $details = ''){
-    $logEntry = date('Y-m-d H:i:s') . " - IP: " . $_SERVER['REMOTE_ADDR'] . " - Event: " . $event . " - Details: " . $details . "\n";
-    file_put_contents(__DIR__ . '/../security.log', $logEntry, FILE_APPEND | LOCK_EX);
-}
-
-# Rate Limiting
-function checkRateLimit($key, $limit = 5, $window = 300){
-    $cacheFile = sys_get_temp_dir() . '/rate_limit_' . md5($key);
-    $current = time();
-    
-    if(file_exists($cacheFile)){
-        $data = json_decode(file_get_contents($cacheFile), true);
-        if($data['reset_time'] < $current){
-            $data = ['count' => 1, 'reset_time' => $current + $window];
-        } else {
-            $data['count']++;
-            if($data['count'] > $limit){
-                return false;
-            }
-        }
-    } else {
-        $data = ['count' => 1, 'reset_time' => $current + $window];
-    }
-    
-    file_put_contents($cacheFile, json_encode($data));
-    return true;
+function validateCSRF($token){
+    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
 function csrf_generate_token() {
@@ -320,5 +290,67 @@ function csrf_verify() {
         }
     }
     return true;
+}
+
+function sanitizeFilename($filename){
+    $filename = AntiXss($filename);
+    $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
+    return $filename;
+}
+
+function validateEmail($email){
+    return filter_var($email, FILTER_VALIDATE_EMAIL) && preg_match('/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $email);
+}
+
+function validatePhone($phone){
+    return preg_match('/^[0-9]{10,11}$/', $phone);
+}
+
+function logSecurity($event, $details = ''){
+    $logEntry = date('Y-m-d H:i:s') . " - IP: " . $_SERVER['REMOTE_ADDR'] . " - Event: " . $event . " - Details: " . $details . "\n";
+    file_put_contents(__DIR__ . '/../security.log', $logEntry, FILE_APPEND | LOCK_EX);
+}
+
+function checkRateLimit($key, $limit = 5, $window = 300){
+    $cacheFile = sys_get_temp_dir() . '/rate_limit_' . md5($key);
+    $current = time();
+    
+    if(file_exists($cacheFile)){
+        $data = json_decode(file_get_contents($cacheFile), true);
+        if($data['reset_time'] < $current){
+            $data = ['count' => 1, 'reset_time' => $current + $window];
+        } else {
+            $data['count']++;
+            if($data['count'] > $limit){
+                return false;
+            }
+        }
+    } else {
+        $data = ['count' => 1, 'reset_time' => $current + $window];
+    }
+    
+    file_put_contents($cacheFile, json_encode($data));
+    return true;
+}
+
+# Session Security
+if(session_status() === PHP_SESSION_NONE){
+    session_start();
+}
+
+session_regenerate_id(true);
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_secure', 1);
+ini_set('session.use_only_cookies', 1);
+
+# Set security headers
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: SAMEORIGIN');
+header('X-XSS-Protection: 1; mode=block');
+header('Referrer-Policy: strict-origin-when-cross-origin');
+
+# Generate CSRF token if not exists
+if(!isset($_SESSION['csrf_token'])){
+    $_SESSION['csrf_token'] = generateSecureToken();
 }
 ?>

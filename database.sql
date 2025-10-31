@@ -1,5 +1,6 @@
 -- Database Schema for MMO Project
 -- Created by Senior Developer (20 years experience)
+-- Fixed version with correct table order
 
 -- Users table
 CREATE TABLE IF NOT EXISTS `users` (
@@ -35,6 +36,42 @@ CREATE TABLE IF NOT EXISTS `banks` (
   `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `bank_code` (`bank_code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dots (Domain Extensions) table - MUST be created before website_orders
+CREATE TABLE IF NOT EXISTS `dots` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `extension` varchar(10) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `renewal_price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `description` text DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `extension` (`extension`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Website Templates table - MUST be created before website_orders
+CREATE TABLE IF NOT EXISTS `website_templates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `demo_url` varchar(255) DEFAULT NULL,
+  `thumbnail` varchar(255) DEFAULT NULL,
+  `features` text DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `category` (`category`),
+  KEY `status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Deposits table
@@ -84,47 +121,7 @@ CREATE TABLE IF NOT EXISTS `password_resets` (
   KEY `token` (`token`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Insert default banks
-INSERT INTO `banks` (`bank_name`, `bank_code`, `account_name`, `account_number`, `branch`, `min_amount`, `max_amount`) VALUES
-('Vietcombank', 'VCB', 'NGUYEN VAN A', '0011001234567', 'Chi nhánh Hà Nội', 10000.00, 50000000.00),
-('Techcombank', 'TCB', 'NGUYEN VAN A', '1903123456789', 'Chi nhánh TP.HCM', 10000.00, 50000000.00),
-('Vietinbank', 'CTG', 'NGUYEN VAN A', '71123456789', 'Chi nhánh Đà Nẵng', 10000.00, 50000000.00),
-('DongA Bank', 'DAB', 'NGUYEN VAN A', '0123456789', 'Chi nhánh Quận 1', 10000.00, 50000000.00),
-('ACB Bank', 'ACB', 'NGUYEN VAN A', '23456789', 'Chi nhánh Bình Thạnh', 10000.00, 50000000.00),
-('MB Bank', 'MB', 'NGUYEN VAN A', '880123456789', 'Chi nhánh Cầu Giấy', 10000.00, 50000000.00);
-
--- Insert default settings
-INSERT INTO `settings` (`name`, `value`, `description`) VALUES
-('site_name', 'MMO Platform', 'Tên website'),
-('site_description', 'Nền tảng MMO uy tín hàng đầu', 'Mô tả website'),
-('site_keywords', 'mmo, kiếm tiền online, tài chính', 'Từ khóa SEO'),
-('card_discount', '20', 'Chiết khấu thẻ cào (%)'),
-('min_card_amount', '10000', 'Mệnh giá thẻ cào tối thiểu'),
-('max_card_amount', '500000', 'Mệnh giá thẻ cào tối đa'),
-('auto_approve_card', '0', 'Tự động duyệt thẻ cào (0/1)'),
-('maintenance', '0', 'Chế độ bảo trì (0/1)');
-
--- Website Templates table
-CREATE TABLE IF NOT EXISTS `website_templates` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `slug` varchar(100) NOT NULL,
-  `description` text DEFAULT NULL,
-  `category` varchar(50) DEFAULT NULL,
-  `price` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `demo_url` varchar(255) DEFAULT NULL,
-  `thumbnail` varchar(255) DEFAULT NULL,
-  `features` text DEFAULT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `slug` (`slug`),
-  KEY `category` (`category`),
-  KEY `status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Website Orders table
+-- Website Orders table - NOW can reference dots and website_templates
 CREATE TABLE IF NOT EXISTS `website_orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
@@ -147,30 +144,25 @@ CREATE TABLE IF NOT EXISTS `website_orders` (
   FOREIGN KEY (`dot_id`) REFERENCES `dots` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Dots (Domain Extensions) table
-CREATE TABLE IF NOT EXISTS `dots` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `extension` varchar(10) NOT NULL,
-  `name` varchar(50) NOT NULL,
-  `price` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `renewal_price` decimal(10,2) NOT NULL DEFAULT 0.00,
-  `description` text DEFAULT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
-  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `extension` (`extension`),
-  KEY `status` (`status`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Insert default banks
+INSERT INTO `banks` (`bank_name`, `bank_code`, `account_name`, `account_number`, `branch`, `min_amount`, `max_amount`) VALUES
+('Vietcombank', 'VCB', 'NGUYEN VAN A', '0011001234567', 'Chi nhánh Hà Nội', 10000.00, 50000000.00),
+('Techcombank', 'TCB', 'NGUYEN VAN A', '1903123456789', 'Chi nhánh TP.HCM', 10000.00, 50000000.00),
+('Vietinbank', 'CTG', 'NGUYEN VAN A', '71123456789', 'Chi nhánh Đà Nẵng', 10000.00, 50000000.00),
+('DongA Bank', 'DAB', 'NGUYEN VAN A', '0123456789', 'Chi nhánh Quận 1', 10000.00, 50000000.00),
+('ACB Bank', 'ACB', 'NGUYEN VAN A', '23456789', 'Chi nhánh Bình Thạnh', 10000.00, 50000000.00),
+('MB Bank', 'MB', 'NGUYEN VAN A', '880123456789', 'Chi nhánh Cầu Giấy', 10000.00, 50000000.00);
 
--- Insert sample website templates
-INSERT INTO `website_templates` (`name`, `slug`, `description`, `category`, `price`, `demo_url`, `thumbnail`, `features`) VALUES
-('E-commerce Pro', 'ecommerce-pro', 'Giao diện thương mại điện tử chuyên nghiệp với đầy đủ tính năng', 'ecommerce', 299000.00, 'https://demo.example.com/ecommerce', 'images/templates/ecommerce-pro.jpg', '["Cart", "Payment", "Admin Panel", "Multi-language", "SEO Optimized"]'),
-('Business Corporate', 'business-corporate', 'Giao diện công ty doanh nghiệp sang trọng và chuyên nghiệp', 'business', 199000.00, 'https://demo.example.com/business', 'images/templates/business-corporate.jpg', '["About Us", "Services", "Portfolio", "Contact", "Blog"]'),
-('News Portal', 'news-portal', 'Giao diện trang tin tức, báo điện tử hiện đại', 'news', 249000.00, 'https://demo.example.com/news', 'images/templates/news-portal.jpg', '["Article Management", "Categories", "Comments", "Search", "RSS Feed"]'),
-('Restaurant & Food', 'restaurant-food', 'Giao diện nhà hàng, quán ăn, delivery food', 'food', 179000.00, 'https://demo.example.com/restaurant', 'images/templates/restaurant-food.jpg', '["Menu", "Online Ordering", "Reservation", "Gallery", "Reviews"]'),
-('Education Online', 'education-online', 'Giao diện trang giáo dục, học trực tuyến', 'education', 329000.00, 'https://demo.example.com/education', 'images/templates/education-online.jpg', '["Courses", "Lessons", "Quizzes", "Certificates", "Student Dashboard"]'),
-('Portfolio Creative', 'portfolio-creative', 'Giao diện portfolio cá nhân, agency sáng tạo', 'portfolio', 149000.00, 'https://demo.example.com/portfolio', 'images/templates/portfolio-creative.jpg', '["Projects", "Gallery", "Testimonials", "Contact Form", "Blog"]');
+-- Insert default settings
+INSERT INTO `settings` (`name`, `value`, `description`) VALUES
+('site_name', 'MMO Platform', 'Tên website'),
+('site_description', 'Nền tảng MMO uy tín hàng đầu', 'Mô tả website'),
+('site_keywords', 'mmo, kiếm tiền online, tài chính', 'Từ khóa SEO'),
+('card_discount', '20', 'Chiết khấu thẻ cào (%)'),
+('min_card_amount', '10000', 'Mệnh giá thẻ cào tối thiểu'),
+('max_card_amount', '500000', 'Mệnh giá thẻ cào tối đa'),
+('auto_approve_card', '0', 'Tự động duyệt thẻ cào (0/1)'),
+('maintenance', '0', 'Chế độ bảo trì (0/1)');
 
 -- Insert sample domain extensions
 INSERT INTO `dots` (`extension`, `name`, `price`, `renewal_price`, `description`) VALUES
@@ -182,3 +174,12 @@ INSERT INTO `dots` (`extension`, `name`, `price`, `renewal_price`, `description`
 ('.info', 'Information Domain', 180000.00, 210000.00, 'Phù hợp cho trang thông tin, tin tức'),
 ('.biz', 'Business Domain', 190000.00, 220000.00, 'Phù hợp cho doanh nghiệp nhỏ và vừa'),
 ('.co', 'Company Domain', 350000.00, 380000.00, 'Ngắn gọn, hiện đại, phù hợp cho startup');
+
+-- Insert sample website templates
+INSERT INTO `website_templates` (`name`, `slug`, `description`, `category`, `price`, `demo_url`, `thumbnail`, `features`) VALUES
+('E-commerce Pro', 'ecommerce-pro', 'Giao diện thương mại điện tử chuyên nghiệp với đầy đủ tính năng', 'ecommerce', 299000.00, 'https://demo.example.com/ecommerce', 'images/templates/ecommerce-pro.jpg', '["Cart", "Payment", "Admin Panel", "Multi-language", "SEO Optimized"]'),
+('Business Corporate', 'business-corporate', 'Giao diện công ty doanh nghiệp sang trọng và chuyên nghiệp', 'business', 199000.00, 'https://demo.example.com/business', 'images/templates/business-corporate.jpg', '["About Us", "Services", "Portfolio", "Contact", "Blog"]'),
+('News Portal', 'news-portal', 'Giao diện trang tin tức, báo điện tử hiện đại', 'news', 249000.00, 'https://demo.example.com/news', 'images/templates/news-portal.jpg', '["Article Management", "Categories", "Comments", "Search", "RSS Feed"]'),
+('Restaurant & Food', 'restaurant-food', 'Giao diện nhà hàng, quán ăn, delivery food', 'food', 179000.00, 'https://demo.example.com/restaurant', 'images/templates/restaurant-food.jpg', '["Menu", "Online Ordering", "Reservation", "Gallery", "Reviews"]'),
+('Education Online', 'education-online', 'Giao diện trang giáo dục, học trực tuyến', 'education', 329000.00, 'https://demo.example.com/education', 'images/templates/education-online.jpg', '["Courses", "Lessons", "Quizzes", "Certificates", "Student Dashboard"]'),
+('Portfolio Creative', 'portfolio-creative', 'Giao diện portfolio cá nhân, agency sáng tạo', 'portfolio', 149000.00, 'https://demo.example.com/portfolio', 'images/templates/portfolio-creative.jpg', '["Projects", "Gallery", "Testimonials", "Contact Form", "Blog"]');

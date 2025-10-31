@@ -2,12 +2,12 @@
 <div class="nk-footer">
 <div class="container-xl wide-xl">
 <div class="nk-footer-wrap">
-<div class="nk-footer-copyright"> &copy; <?=date('Y');?> <?=strtoupper($_SERVER['HTTP_HOST']);?>. Developer by <a href="https://nify.vn" target="_blank">NIFY.VN</a>
+<div class="nk-footer-copyright"> &copy; <?=date('Y');?> <?=strtoupper($_SERVER['HTTP_HOST']);?>. DESIGN BY <a href="https://nify.vn" target="_blank">NIFY.VN</a>
 </div>
 
 
 
-<div class="nk-footer-links">
+<div class="nk-footer-links d-none d-md-block">
 <ul class="nav nav-sm">
 <li class="nav-item dropup">
 <a herf="" class="dropdown-toggle dropdown-indicator has-indicator nav-link text-base" data-bs-toggle="dropdown" data-offset="0,10">

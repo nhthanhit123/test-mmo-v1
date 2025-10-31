@@ -92,8 +92,16 @@ function redirect($url){
 }
 
 function isLogin(){
-    if(isset($_COOKIE['token'])){
-        return true;
+    if(isset($_COOKIE['remember_token'])){
+        $token = md5($_COOKIE['remember_token']);
+        global $nify;
+        $check = $nify->query("SELECT `id` FROM `users` WHERE `remember_token` = '$token' AND `status` = 'active'");
+        if($check->num_rows > 0){
+            return true;
+        } else {
+            setcookie('remember_token', '', time() - 3600, '/', '', false, true);
+            return false;
+        }
     } else {
         return false;
     }
@@ -231,14 +239,86 @@ function TruTienDichVu($time, $amount, $hsd){
 
 # Get User
 if(isLogin()){
-    $getUser = mysqli_query($nify, "SELECT * FROM `users` WHERE remember_token = '".$_COOKIE['remember_token']."'")->fetch_assoc();
-    if($getUser['remember_token'] != $_COOKIE['remember_token']){
+    $token = md5($_COOKIE['remember_token']);
+    $getUser = mysqli_query($nify, "SELECT * FROM `users` WHERE `remember_token` = '$token' AND `status` = 'active'")->fetch_assoc();
+    if(!$getUser || $getUser['remember_token'] !== $token){
         setcookie('remember_token', '', time() - 3600, '/', '', false, true);
-        exit('Phiên Đăng Nhập Không Hợp Lệ.');
+        exit(redirect('/auth/login'));
     }
 
     $nify->query("UPDATE `users` SET `ip` = '".$_SERVER['REMOTE_ADDR']."' WHERE `id` = '".$getUser['id']."'");
 } else {
     $getUser = null;
+}
+
+# Enhanced Security Functions
+function generateSecureToken($length = 32){
+    return bin2hex(random_bytes($length));
+}
+
+function sanitizeFilename($filename){
+    $filename = AntiXss($filename);
+    $filename = preg_replace('/[^a-zA-Z0-9._-]/', '', $filename);
+    return $filename;
+}
+
+function validateEmail($email){
+    return filter_var($email, FILTER_VALIDATE_EMAIL) && preg_match('/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/', $email);
+}
+
+function validatePhone($phone){
+    return preg_match('/^[0-9]{10,11}$/', $phone);
+}
+
+function logSecurity($event, $details = ''){
+    $logEntry = date('Y-m-d H:i:s') . " - IP: " . $_SERVER['REMOTE_ADDR'] . " - Event: " . $event . " - Details: " . $details . "\n";
+    file_put_contents(__DIR__ . '/../security.log', $logEntry, FILE_APPEND | LOCK_EX);
+}
+
+# Rate Limiting
+function checkRateLimit($key, $limit = 5, $window = 300){
+    $cacheFile = sys_get_temp_dir() . '/rate_limit_' . md5($key);
+    $current = time();
+    
+    if(file_exists($cacheFile)){
+        $data = json_decode(file_get_contents($cacheFile), true);
+        if($data['reset_time'] < $current){
+            $data = ['count' => 1, 'reset_time' => $current + $window];
+        } else {
+            $data['count']++;
+            if($data['count'] > $limit){
+                return false;
+            }
+        }
+    } else {
+        $data = ['count' => 1, 'reset_time' => $current + $window];
+    }
+    
+    file_put_contents($cacheFile, json_encode($data));
+    return true;
+}
+
+function csrf_generate_token() {
+    if(empty($_SESSION['csrf_token'])){
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+function csrf_field() {
+    $token = csrf_generate_token();
+    echo '<input type="hidden" name="csrf_token" value="' . htmlspecialchars($token) . '">';
+}
+
+function csrf_verify() {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if (empty($_POST['csrf_token']) || empty($_SESSION['csrf_token'])) {
+            return false;
+        }
+        if (!hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            return false;
+        }
+    }
+    return true;
 }
 ?>

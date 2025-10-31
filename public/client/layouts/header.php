@@ -4,7 +4,7 @@
 <meta name="author" content="Softnio">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <meta name="description" content="A powerful and conceptual apps base dashboard template that especially build for developers and programmers.">
-<link rel="shortcut icon" href="images/favicon.png">
+<link rel="shortcut icon" href="/images/favicon.png">
 <title>TAOSHOP.NET - HỆ THỐNG THIẾT KẾ WEBSITE BÁN MÃ NGUỒN TỰ ĐỘNG UY TÍN</title>
 <link rel="stylesheet" href="/assets/css/dashlite.css?ver=3.3.0">
 <link id="skin-default" rel="stylesheet" href="/assets/css/theme-green.css?ver=<?=mt_rand();?>">
@@ -19,9 +19,9 @@
     <div class="nk-sidebar-element nk-sidebar-head">
     <div class="nk-sidebar-brand">
     <a href="/" class="logo-link nk-sidebar-logo">
-    <img class="logo-light logo-img" src="images/logo-1.png" srcset="images/logo2x-1.png 2x" alt="logo">
-<img class="logo-dark logo-img" src="images/logo-dark-1.png" srcset="images/logo-dark2x-1.png 2x" alt="logo-dark">
-<img class="logo-small logo-img logo-img-small" src="images/logo-small-1.png" srcset="images/logo-small2x-1.png 2x" alt="logo-small">
+    <img class="logo-light logo-img" src="/images/logo-1.png" srcset="/images/logo2x-1.png 2x" alt="logo">
+<img class="logo-dark logo-img" src="/images/logo-dark-1.png" srcset="/images/logo-dark2x-1.png 2x" alt="logo-dark">
+<img class="logo-small logo-img logo-img-small" src="/images/logo-small-1.png" srcset="/images/logo-small2x-1.png 2x" alt="logo-small">
 </a>
 </div>
 <div class="nk-menu-trigger me-n2">
@@ -55,16 +55,7 @@
 <li class="nk-menu-heading">
     <h6 class="overline-title text-primary-alt"> Trang Khách Hàng </h6>
 </li>
-<li class="nk-menu-item">
-    <a href="/" class="nk-menu-link">
-    <span class="nk-menu-icon">
-    <em class="icon ni ni-presentation">
-    
-</em>
-</span>
-<span class="nk-menu-text"> Trang Chủ </span>
-</a>
-</li>
+
 <li class="nk-menu-item">
     <a href="/invoices" class="nk-menu-link">
     <span class="nk-menu-icon">
@@ -167,17 +158,17 @@
 </a>
 <ul class="nk-menu-sub">
 <li class="nk-menu-item">
-<a href="/auth/login" class="nk-menu-link" target="_blank">
+<a href="/auth/login" class="nk-menu-link">
 <span class="nk-menu-text"> Đăng Nhập </span>
 </a>
 </li>
 <li class="nk-menu-item">
-<a href="/auth/register" class="nk-menu-link" target="_blank">
+<a href="/auth/register" class="nk-menu-link">
 <span class="nk-menu-text"> Đăng Ký </span>
 </a>
 </li>
 <li class="nk-menu-item">
-<a href="/auth/change-pw" class="nk-menu-link" target="_blank">
+<a href="/auth/change-pw" class="nk-menu-link">
 <span class="nk-menu-text"> Đổi Mật Khẩu </span>
 </a>
 </li>
@@ -229,8 +220,8 @@
 <!-- NT Nav Logo -->
 <div class="nk-header-brand d-xl-none">
 <a href="/" class="logo-link">
-<img class="logo-light logo-img" src="images/logo-1.png" srcset="images/logo2x-1.png 2x" alt="logo">
-<img class="logo-dark logo-img" src="images/logo-dark-1.png" srcset="images/logo-dark2x-1.png 2x" alt="logo-dark">
+<img class="logo-light logo-img" src="/images/logo-1.png" srcset="/images/logo2x-1.png 2x" alt="logo">
+<img class="logo-dark logo-img" src="/images/logo-dark-1.png" srcset="/images/logo-dark2x-1.png 2x" alt="logo-dark">
 </a>
 </div>
 
@@ -381,7 +372,7 @@
 <li class="chat-item">
 <a class="chat-link" href="apps-chats.html">
 <div class="chat-media user-avatar">
-<img src="images/avatar/b-sm.jpg" alt="">
+<img src="/images/avatar/b-sm.jpg" alt="">
 </div>
 <div class="chat-info">
 <div class="chat-from">
@@ -398,7 +389,7 @@
 <a class="chat-link" href="apps-chats.html">
 <div class="chat-media user-avatar user-avatar-multiple">
 <div class="user-avatar">
-<img src="images/avatar/c-sm.jpg" alt="">
+<img src="/images/avatar/c-sm.jpg" alt="">
 </div>
 <div class="user-avatar">
 <span>AB</span>
@@ -422,7 +413,7 @@
 <li class="chat-item">
 <a class="chat-link" href="apps-chats.html">
 <div class="chat-media user-avatar">
-<img src="images/avatar/a-sm.jpg" alt="">
+<img src="/images/avatar/a-sm.jpg" alt="">
 <span class="status dot dot-lg dot-success">
 </span>
 </div>
@@ -530,32 +521,32 @@
 <!--<li class="dropdown language-dropdown d-none d-sm-block me-n1">-->
 <!--<a href="#" class="dropdown-toggle nk-quick-nav-icon" data-bs-toggle="dropdown">-->
 <!--<div class="quick-icon border border-light">-->
-<!--<img class="icon" src="images/flags/english-sq-1.png" alt="">-->
+<!--<img class="icon" src="/images/flags/english-sq-1.png" alt="">-->
 <!--</div>-->
 <!--</a>-->
 <!--<div class="dropdown-menu dropdown-menu-end">-->
 <!--<ul class="language-list">-->
 <!--<li>-->
 <!--<a href="#" class="language-item">-->
-<!--<img src="images/flags/english-1.png" alt="" class="language-flag">-->
+<!--<img src="/images/flags/english-1.png" alt="" class="language-flag">-->
 <!--<span class="language-name">English</span>-->
 <!--</a>-->
 <!--</li>-->
 <!--<li>-->
 <!--<a href="#" class="language-item">-->
-<!--<img src="images/flags/spanish-1.png" alt="" class="language-flag">-->
+<!--<img src="/images/flags/spanish-1.png" alt="" class="language-flag">-->
 <!--<span class="language-name">Español</span>-->
 <!--</a>-->
 <!--</li>-->
 <!--<li>-->
 <!--<a href="#" class="language-item">-->
-<!--<img src="images/flags/french-1.png" alt="" class="language-flag">-->
+<!--<img src="/images/flags/french-1.png" alt="" class="language-flag">-->
 <!--<span class="language-name">Français</span>-->
 <!--</a>-->
 <!--</li>-->
 <!--<li>-->
 <!--<a href="#" class="language-item">-->
-<!--<img src="images/flags/turkey-1.png" alt="" class="language-flag">-->
+<!--<img src="/images/flags/turkey-1.png" alt="" class="language-flag">-->
 <!--<span class="language-name">Türkçe</span>-->
 <!--</a>-->
 <!--</li>-->

@@ -9,7 +9,25 @@
 */
 
 $routes = [
-    '/' => 'public/client/index.php'
+    '/' => 'public/client/index.php',
+    '/auth/login' => 'public/client/auth/login.php',
+    '/auth/register' => 'public/client/auth/register.php',
+    '/auth/forgot' => 'public/client/auth/forgot.php',
+    '/auth/reset' => 'public/client/auth/reset.php',
+    '/deposit' => 'public/client/deposit.php',
+    
+    # Services
+    '/kho-giao-dien' => 'public/client/website/kho-giao-dien.php',
+    '/w-generate' => 'public/client/website/thanh-toan.php',
+    
+    # Manage 
+    '/manage/web' => 'public/client/website/manage.php',
+    
+    # Ajaxs Client
+    '/ajaxs/client/login' => 'backend/client/login.php',
+    '/ajaxs/client/register' => 'backend/client/register.php',
+    '/ajaxs/logout' => 'backend/logout.php',
+    '/ajaxs/client/deposit' => 'backend/client/deposit.php'
 ];
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -39,12 +57,17 @@ for($i = 0; $i < count($pathParts); $i++){
 
 if($foundRoute){
     # Xử Lí Ajaxs
-    if(strpos($routePath, '/ajax/') === 0 || strpos($routePath, '/cron/') === 0){   
-        if(strpos($routePath, '/ajax/admin/') === 0){
+    if(strpos($routePath, '/ajaxs/') === 0 || strpos($routePath, '/cron/') === 0){   
+        if(strpos($routePath, '/ajaxs/admin/') === 0){
             # Check Điều Kiện Ajax Admin
         } else {
-            header('Content-Type: application/json');
-            include $routes[$routePath]; 
+           header('Content-Type: application/json; charset=utf-8');
+            if(!csrf_verify()){
+                echo json_encode(['status' => false, 'message' => 'CSRF token không hợp lệ hoặc đã hết hạn!']);
+                exit;
+            }
+            
+           include $routes[$routePath]; 
         }
     } else 
     

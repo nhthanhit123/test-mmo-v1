@@ -27,7 +27,8 @@ $routes = [
     '/ajaxs/client/login' => 'backend/client/login.php',
     '/ajaxs/client/register' => 'backend/client/register.php',
     '/ajaxs/logout' => 'backend/logout.php',
-    '/ajaxs/client/deposit' => 'backend/client/deposit.php'
+    '/ajaxs/client/deposit' => 'backend/client/deposit.php',
+    '/ajaxs/client/website/order' => 'backend/client/website/order.php'
 ];
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

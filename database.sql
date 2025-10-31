@@ -103,3 +103,82 @@ INSERT INTO `settings` (`name`, `value`, `description`) VALUES
 ('max_card_amount', '500000', 'Mệnh giá thẻ cào tối đa'),
 ('auto_approve_card', '0', 'Tự động duyệt thẻ cào (0/1)'),
 ('maintenance', '0', 'Chế độ bảo trì (0/1)');
+
+-- Website Templates table
+CREATE TABLE IF NOT EXISTS `website_templates` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(100) NOT NULL,
+  `description` text DEFAULT NULL,
+  `category` varchar(50) DEFAULT NULL,
+  `price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `demo_url` varchar(255) DEFAULT NULL,
+  `thumbnail` varchar(255) DEFAULT NULL,
+  `features` text DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `category` (`category`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Website Orders table
+CREATE TABLE IF NOT EXISTS `website_orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `template_id` int(11) NOT NULL,
+  `domain` varchar(255) DEFAULT NULL,
+  `dot_id` int(11) DEFAULT NULL,
+  `package_type` enum('monthly','quarterly','yearly') DEFAULT 'monthly',
+  `price` decimal(10,2) NOT NULL,
+  `status` enum('pending','active','expired','cancelled') DEFAULT 'pending',
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  KEY `template_id` (`template_id`),
+  KEY `dot_id` (`dot_id`),
+  KEY `status` (`status`),
+  FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`template_id`) REFERENCES `website_templates` (`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`dot_id`) REFERENCES `dots` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Dots (Domain Extensions) table
+CREATE TABLE IF NOT EXISTS `dots` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `extension` varchar(10) NOT NULL,
+  `name` varchar(50) NOT NULL,
+  `price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `renewal_price` decimal(10,2) NOT NULL DEFAULT 0.00,
+  `description` text DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `extension` (`extension`),
+  KEY `status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Insert sample website templates
+INSERT INTO `website_templates` (`name`, `slug`, `description`, `category`, `price`, `demo_url`, `thumbnail`, `features`) VALUES
+('E-commerce Pro', 'ecommerce-pro', 'Giao diện thương mại điện tử chuyên nghiệp với đầy đủ tính năng', 'ecommerce', 299000.00, 'https://demo.example.com/ecommerce', 'images/templates/ecommerce-pro.jpg', '["Cart", "Payment", "Admin Panel", "Multi-language", "SEO Optimized"]'),
+('Business Corporate', 'business-corporate', 'Giao diện công ty doanh nghiệp sang trọng và chuyên nghiệp', 'business', 199000.00, 'https://demo.example.com/business', 'images/templates/business-corporate.jpg', '["About Us", "Services", "Portfolio", "Contact", "Blog"]'),
+('News Portal', 'news-portal', 'Giao diện trang tin tức, báo điện tử hiện đại', 'news', 249000.00, 'https://demo.example.com/news', 'images/templates/news-portal.jpg', '["Article Management", "Categories", "Comments", "Search", "RSS Feed"]'),
+('Restaurant & Food', 'restaurant-food', 'Giao diện nhà hàng, quán ăn, delivery food', 'food', 179000.00, 'https://demo.example.com/restaurant', 'images/templates/restaurant-food.jpg', '["Menu", "Online Ordering", "Reservation", "Gallery", "Reviews"]'),
+('Education Online', 'education-online', 'Giao diện trang giáo dục, học trực tuyến', 'education', 329000.00, 'https://demo.example.com/education', 'images/templates/education-online.jpg', '["Courses", "Lessons", "Quizzes", "Certificates", "Student Dashboard"]'),
+('Portfolio Creative', 'portfolio-creative', 'Giao diện portfolio cá nhân, agency sáng tạo', 'portfolio', 149000.00, 'https://demo.example.com/portfolio', 'images/templates/portfolio-creative.jpg', '["Projects", "Gallery", "Testimonials", "Contact Form", "Blog"]');
+
+-- Insert sample domain extensions
+INSERT INTO `dots` (`extension`, `name`, `price`, `renewal_price`, `description`) VALUES
+('.com', 'Commercial Domain', 250000.00, 280000.00, 'Phổ biến nhất, phù hợp cho mọi loại hình kinh doanh'),
+('.net', 'Network Domain', 220000.00, 250000.00, 'Phù hợp cho công ty công nghệ, mạng'),
+('.org', 'Organization Domain', 200000.00, 230000.00, 'Phù hợp cho tổ chức phi lợi nhuận'),
+('.vn', 'Vietnam Domain', 650000.00, 680000.00, 'Tên miền quốc gia Việt Nam, tăng uy tín tại Việt Nam'),
+('.com.vn', 'Vietnam Commercial', 450000.00, 480000.00, 'Tên miền thương mại Việt Nam'),
+('.info', 'Information Domain', 180000.00, 210000.00, 'Phù hợp cho trang thông tin, tin tức'),
+('.biz', 'Business Domain', 190000.00, 220000.00, 'Phù hợp cho doanh nghiệp nhỏ và vừa'),
+('.co', 'Company Domain', 350000.00, 380000.00, 'Ngắn gọn, hiện đại, phù hợp cho startup');
